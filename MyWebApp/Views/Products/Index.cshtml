@@ -1,0 +1,78 @@
+﻿@model IEnumerable<MyWebApp.Models.Product>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">🛍️ قائمة المنتجات</h2>
+
+<div class="text-center mb-4">
+    <a asp-action="Create" class="btn btn-primary px-4">➕ إضافة منتج جديد</a>
+</div>
+
+<!-- البحث والتصنيفات -->
+<div class="row justify-content-center mb-4">
+    <div class="col-md-6">
+        <input type="text" id="searchInput" class="form-control bg-dark text-white border-secondary mb-3"
+               placeholder="🔍 ابحث عن منتج..." onkeyup="filterProducts()" />
+    </div>
+</div>
+
+<div class="text-center mb-4">
+    <button class="btn btn-outline-light me-2" onclick="filterCategory('all')">🌐 الكل</button>
+    <button class="btn btn-outline-light me-2" onclick="filterCategory('إلكترونيات')">📱 إلكترونيات</button>
+    <button class="btn btn-outline-light me-2" onclick="filterCategory('ملابس')">👕 ملابس</button>
+    <button class="btn btn-outline-light me-2" onclick="filterCategory('سيارات')">🚗 سيارات</button>
+    <button class="btn btn-outline-light me-2" onclick="filterCategory('أثاث')">🛋️ أثاث</button>
+    <button class="btn btn-outline-light me-2" onclick="filterCategory('أخرى')">📦 أخرى</button>
+</div>
+
+<div class="row" id="productsList">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4 product-card"
+             data-name="@item.Name.ToLower()"
+             data-category="@item.Category">
+            <div class="card h-100 shadow">
+                @if (!string.IsNullOrEmpty(item.ImagePath))
+                {
+                    <img src="@item.ImagePath" class="card-img-top"
+                         style="height:200px; object-fit:cover; border-radius:15px 15px 0 0;" />
+                }
+                <div class="card-body">
+                    <span class="badge mb-2" style="background-color:#7b00cc;">@item.Category</span>
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="card-text">@item.Description</p>
+                    <p class="fw-bold" style="color:#cc88ff;">💰 @item.Price دج</p>
+                    <a asp-action="Details" asp-route-id="@item.Id"
+                       class="btn btn-info btn-sm me-2">🔍 التفاصيل</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id"
+                       class="btn btn-warning btn-sm me-2">✏️ تعديل</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('هل تريد حذف هذا المنتج؟')">🗑️ حذف</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    var currentCategory = 'all';
+
+    function filterProducts() {
+        var input = document.getElementById("searchInput").value.toLowerCase();
+        var cards = document.querySelectorAll(".product-card");
+        cards.forEach(function (card) {
+            var name = card.getAttribute("data-name");
+            var category = card.getAttribute("data-category");
+            var matchSearch = name.includes(input);
+            var matchCategory = currentCategory === 'all' || category === currentCategory;
+            card.style.display = (matchSearch && matchCategory) ? "block" : "none";
+        });
+    }
+
+    function filterCategory(category) {
+        currentCategory = category;
+        filterProducts();
+    }
+</script>
